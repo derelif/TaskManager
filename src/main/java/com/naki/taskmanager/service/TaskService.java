@@ -1,7 +1,9 @@
 package com.naki.taskmanager.service;
 
+import com.naki.taskmanager.dto.TaskDTO;
 import com.naki.taskmanager.entity.Task;
 import com.naki.taskmanager.repository.TaskRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +22,15 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
+    public ResponseEntity<Void> createTask(TaskDTO taskDTO) {
+        Task task = new Task();
+        task.setTitle(taskDTO.title());
+        task.setDescription(taskDTO.description());
+        task.setPriority(taskDTO.status());
+        task.setDeadline(taskDTO.deadline());
+        task.setPriority(taskDTO.priority());
+        taskRepository.save(task);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     public ResponseEntity<Void> deleteTask(Long taskId) {
@@ -33,14 +42,14 @@ public class TaskService {
         }
     }
 
-    public ResponseEntity<Task> updateTask(Long taskId, Task updateTask) {
+    public ResponseEntity<Task> updateTask(Long taskId, TaskDTO updateTask) {
         return taskRepository.findById(taskId)
                 .map(task -> {
-                    task.setTitle(updateTask.getTitle());
-                    task.setDescription(updateTask.getDescription());
-                    task.setStatus(updateTask.getStatus());
-                    task.setDeadline(updateTask.getDeadline());
-                    task.setPriority(updateTask.getPriority());
+                    task.setTitle(updateTask.title());
+                    task.setDescription(updateTask.description());
+                    task.setStatus(updateTask.status());
+                    task.setDeadline(updateTask.deadline());
+                    task.setPriority(updateTask.priority());
                     Task updatedTask = taskRepository.save(task);
                     return ResponseEntity.ok(updatedTask);
                 })
