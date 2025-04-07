@@ -2,6 +2,7 @@ package com.naki.taskmanager.service;
 
 import com.naki.taskmanager.dto.TaskDTO;
 import com.naki.taskmanager.entity.Task;
+import com.naki.taskmanager.exception.TaskNotFoundException;
 import com.naki.taskmanager.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,16 @@ public class TaskService {
         return taskDTOs;
     }
 
+    public ResponseEntity<TaskDTO> getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        return ResponseEntity.ok(new TaskDTO(task.getTitle(),
+                task.getDescription(),
+                task.getStatus(),
+                task.getDeadline(),
+                task.getPriority()));
+    }
+
     public ResponseEntity<Void> createTask(TaskDTO taskDTO) {
         Task task = new Task();
         task.setTitle(taskDTO.title());
@@ -68,6 +79,7 @@ public class TaskService {
                     Task updatedTask = taskRepository.save(task);
                     return ResponseEntity.ok(updatedTask);
                 })
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
+
 }
