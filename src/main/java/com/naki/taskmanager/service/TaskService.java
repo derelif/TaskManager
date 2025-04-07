@@ -3,60 +3,40 @@ package com.naki.taskmanager.service;
 import com.naki.taskmanager.dto.TaskDTO;
 import com.naki.taskmanager.entity.Task;
 import com.naki.taskmanager.exception.TaskNotFoundException;
+import com.naki.taskmanager.parser.TaskMapper;
 import com.naki.taskmanager.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+        this.taskMapper = new TaskMapper();
     }
 
     public List<TaskDTO> getTasks() {
-        return getTaskIntoDTO(taskRepository.findAll());
-    }
-
-    private List<TaskDTO> getTaskIntoDTO(List<Task> tasks) {
-        List<TaskDTO> taskDTOs = new ArrayList<>();
-        for (Task task : tasks) {
-            taskDTOs.add(new TaskDTO(
-                    task.getTitle(),
-                    task.getDescription(),
-                    task.getStatus(),
-                    task.getDeadline(),
-                    task.getPriority()));
-        }
-        return taskDTOs;
+        return taskMapper.mapTasks(taskRepository.findAll());
     }
 
     public ResponseEntity<TaskDTO> getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
-        return ResponseEntity.ok(new TaskDTO(task.getTitle(),
-                task.getDescription(),
-                task.getStatus(),
-                task.getDeadline(),
-                task.getPriority()));
+        return ResponseEntity.ok(taskMapper.mapTaskDTO(task));
     }
 
-    public ResponseEntity<Void> createTask(TaskDTO taskDTO) {
-        Task task = new Task();
-        task.setTitle(taskDTO.title());
-        task.setDescription(taskDTO.description());
-        task.setPriority(taskDTO.status());
-        task.setDeadline(taskDTO.deadline());
-        task.setPriority(taskDTO.priority());
+    public ResponseEntity<TaskDTO> createTask(TaskDTO taskDTO) {
+        Task task = taskMapper.mapTaskDTO(taskDTO);
         taskRepository.save(task);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(taskDTO, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Void> deleteTask(Long taskId) {
@@ -68,18 +48,12 @@ public class TaskService {
         }
     }
 
-    public ResponseEntity<Task> updateTask(Long taskId, TaskDTO updateTask) {
+    public ResponseEntity<TaskDTO> updateTask(Long taskId, TaskDTO updateTask) {
         return taskRepository.findById(taskId)
-                .map(task -> {
-                    task.setTitle(updateTask.title());
-                    task.setDescription(updateTask.description());
-                    task.setStatus(updateTask.status());
-                    task.setDeadline(updateTask.deadline());
-                    task.setPriority(updateTask.priority());
-                    Task updatedTask = taskRepository.save(task);
-                    return ResponseEntity.ok(updatedTask);
+                .map(task -> { taskMapper.mapTaskDTO(updateTask);
+                    taskRepository.save(task);
+                    return new ResponseEntity<>(updateTask, HttpStatus.OK);
                 })
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
-
 }

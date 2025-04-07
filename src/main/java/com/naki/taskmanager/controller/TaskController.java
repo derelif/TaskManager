@@ -29,7 +29,7 @@ public class TaskController {
     }
 
     @PostMapping("/tasks")
-    public ResponseEntity<Void> createTask(@RequestBody @Valid TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody @Valid TaskDTO taskDTO) {
         return taskService.createTask(taskDTO);
     }
 
@@ -39,7 +39,7 @@ public class TaskController {
     }
 
     @PutMapping("/task/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody @Valid TaskDTO updateTask) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody @Valid TaskDTO updateTask) {
         return taskService.updateTask(id, updateTask);
     }
 }
