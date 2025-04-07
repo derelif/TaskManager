@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,8 +20,21 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getTasks() {
-        return taskRepository.findAll();
+    public List<TaskDTO> getTasks() {
+        return getTaskIntoDTO(taskRepository.findAll());
+    }
+
+    private List<TaskDTO> getTaskIntoDTO(List<Task> tasks) {
+        List<TaskDTO> taskDTOs = new ArrayList<>();
+        for (Task task : tasks) {
+            taskDTOs.add(new TaskDTO(
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getStatus(),
+                    task.getDeadline(),
+                    task.getPriority()));
+        }
+        return taskDTOs;
     }
 
     public ResponseEntity<Void> createTask(TaskDTO taskDTO) {
