@@ -1,4 +1,4 @@
-package com.naki.taskmanager.parser;
+package com.naki.taskmanager.mapper;
 
 import com.naki.taskmanager.dto.TaskDTO;
 import com.naki.taskmanager.entity.Task;

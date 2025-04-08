@@ -3,7 +3,7 @@ package com.naki.taskmanager.service;
 import com.naki.taskmanager.dto.TaskDTO;
 import com.naki.taskmanager.entity.Task;
 import com.naki.taskmanager.exception.TaskNotFoundException;
-import com.naki.taskmanager.parser.TaskMapper;
+import com.naki.taskmanager.mapper.TaskMapper;
 import com.naki.taskmanager.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
