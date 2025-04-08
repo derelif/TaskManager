@@ -39,4 +39,12 @@ public class TaskMapper {
                 task.getDeadline(),
                 task.getPriority());
     }
+
+    public static void updateTask(Task task, TaskDTO taskDTO) {
+        task.setTitle(taskDTO.title());
+        task.setDescription(taskDTO.description());
+        task.setDeadline(taskDTO.deadline());
+        task.setStatus(taskDTO.status());
+        task.setPriority(taskDTO.priority());
+    }
 }

@@ -19,8 +19,8 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public List<TaskDTO> getTasks() {
-        return taskService.getTasks();
+    public List<TaskDTO> getTasks(@RequestParam(required = false) String status) {
+        return taskService.getTasks(status);
     }
 
     @GetMapping("/tasks/{id}")
