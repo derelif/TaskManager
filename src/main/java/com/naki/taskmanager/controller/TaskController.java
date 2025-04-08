@@ -1,7 +1,6 @@
 package com.naki.taskmanager.controller;
 
 import com.naki.taskmanager.dto.TaskDTO;
-import com.naki.taskmanager.entity.Task;
 import com.naki.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -41,5 +40,15 @@ public class TaskController {
     @PutMapping("/task/{id}")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody @Valid TaskDTO updateTask) {
         return taskService.updateTask(id, updateTask);
+    }
+
+    @PatchMapping("/tasks/{id}/status")
+    public ResponseEntity<TaskDTO> patchTaskStatus(@PathVariable Long id, @RequestParam String status) {
+        return taskService.patchTaskStatus(id, status);
+    }
+
+    @PatchMapping("/tasks/status")
+    public ResponseEntity<List<TaskDTO>> patchTaskStatus(@RequestBody List<Long> ids, @RequestParam String status) {
+        return taskService.patchTaskStatus(ids, status);
     }
 }

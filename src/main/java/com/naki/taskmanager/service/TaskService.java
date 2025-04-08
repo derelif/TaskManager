@@ -9,11 +9,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -30,7 +33,7 @@ public class TaskService {
     public List<TaskDTO> getTasks(@RequestParam(required = false) String status) {
 
         if (status != null) {
-            return taskMapper.mapTasks(taskRepository.findByStatus(status.toUpperCase()));
+            return taskMapper.mapTasks(taskRepository.findByStatus(status.toLowerCase()));
         }
         return taskMapper.mapTasks(taskRepository.findAll());
     }
@@ -64,5 +67,27 @@ public class TaskService {
                     return new ResponseEntity<>(updateTask, HttpStatus.OK);
                 })
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
+    }
+
+    public ResponseEntity<TaskDTO> patchTaskStatus(Long id, String status) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        task.setStatus(status.toLowerCase());
+        taskRepository.save(task);
+        TaskDTO newTaskDTO = taskMapper.mapTaskDTO(task);
+        return new ResponseEntity<>(newTaskDTO, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<TaskDTO>> patchTaskStatus(List<Long> ids, String status) {
+        List<TaskDTO> updateTasks = ids.stream()
+                .map(id -> taskRepository.findById(id)
+                        .map(task -> {
+                            task.setStatus(status.toLowerCase());
+                            taskRepository.save(task);
+                            return taskMapper.mapTaskDTO(task);
+                        })
+                        .orElseThrow(() -> new TaskNotFoundException(id))
+                ).toList();
+        return new ResponseEntity<>(updateTasks, HttpStatus.OK);
     }
 }
