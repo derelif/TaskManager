@@ -5,19 +5,13 @@ import com.naki.taskmanager.entity.Task;
 import com.naki.taskmanager.exception.TaskNotFoundException;
 import com.naki.taskmanager.mapper.TaskMapper;
 import com.naki.taskmanager.repository.TaskRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class TaskService {
@@ -25,9 +19,9 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
-        this.taskMapper = new TaskMapper();
+        this.taskMapper = taskMapper;
     }
 
     public List<TaskDTO> getTasks(@RequestParam(required = false) String status) {
