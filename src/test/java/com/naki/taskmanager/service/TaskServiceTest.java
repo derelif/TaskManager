@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +32,70 @@ public class TaskServiceTest {
 
     @InjectMocks
     private TaskService taskService;
+
+
+
+    @Test
+    void getTasksShouldReturnAllTasksWhenNoStatusProvided() {
+        // given
+        List<Task> tasks = List.of(new Task(), new Task());
+        List<TaskDTO> taskDTOs = List.of(
+                new TaskDTO("Title1", "Desc1", "pending", null, "1"),
+                new TaskDTO("Title2", "Desc2", "done", null, "2")
+        );
+
+        when(taskRepository.findAll()).thenReturn(tasks);
+        when(taskMapper.mapTasks(tasks)).thenReturn(taskDTOs);
+
+        // when
+        List<TaskDTO> result = taskService.getTasks(null);
+
+        // then
+        assertEquals(taskDTOs, result);
+        verify(taskRepository).findAll();
+        verify(taskMapper).mapTasks(tasks);
+    }
+
+    @Test
+    void getTasksShouldReturnFilteredTasksByStatus() {
+        // given
+        String status = "pending";
+        List<Task> tasks = List.of(new Task());
+        List<TaskDTO> taskDTOs = List.of(new TaskDTO("Title", "Desc", status, null, "1"));
+
+        when(taskRepository.findByStatus(status)).thenReturn(tasks);
+        when(taskMapper.mapTasks(tasks)).thenReturn(taskDTOs);
+
+        // when
+        List<TaskDTO> result = taskService.getTasks(status);
+
+        // then
+        assertEquals(taskDTOs, result);
+        verify(taskRepository).findByStatus(status);
+        verify(taskMapper).mapTasks(tasks);
+    }
+
+    @Test
+    void deleteTaskShouldReturnOkWhenTaskExists() {
+        Long taskId = 1L;
+
+        when(taskRepository.existsById(taskId)).thenReturn(true);
+
+        ResponseEntity<Void> response = taskService.deleteTask(taskId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(taskRepository).deleteById(taskId);
+    }
+
+    @Test
+    void deleteTaskShouldThrowExceptionWhenTaskNotFound() {
+        Long taskId = 42L;
+
+        when(taskRepository.existsById(taskId)).thenReturn(false);
+
+        assertThrows(TaskNotFoundException.class, () -> taskService.deleteTask(taskId));
+    }
+
 
 
 
